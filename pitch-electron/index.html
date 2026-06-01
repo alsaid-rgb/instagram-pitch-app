@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instagram Pitch Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1a2e5a;--navy-dk:#0f1e3d;--gold:#c9960c;--gold-lt:#fef3d0;
+  --paper:#f7f5f0;--white:#fff;--ink:#1a1a1a;--mid:#6b6560;
+  --border:#ddd8d0;--light:#e8e4dd;
+  --red:#c0392b;--red-bg:#fde8e7;
+  --green:#1a6b3c;--green-bg:#e6f4ed;
+  --amber:#c26f00;--amber-bg:#fef3e2;
+  --r:6px;--rl:10px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;font-size:14px;line-height:1.6}
+body.rtl{direction:rtl}
+
+/* HEADER */
+.hdr{background:var(--navy);height:60px;padding:0 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.15)}
+.hbrand{display:flex;align-items:center;gap:12px}
+.hicon{width:36px;height:36px;background:var(--gold);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:18px}
+.htitle{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:#fff}
+.hsub{font-size:11px;color:rgba(255,255,255,.5);margin-top:1px}
+.hright{display:flex;align-items:center;gap:14px}
+.api-status{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.6)}
+.dot{width:7px;height:7px;border-radius:50%;background:#e74c3c;flex-shrink:0;transition:background .3s}
+.dot.ok{background:#2ecc71}
+.ltoggle{display:flex;gap:3px}
+.lbtn{padding:4px 13px;border-radius:var(--r);border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.6);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s}
+.lbtn.on{background:var(--gold);border-color:var(--gold);color:#fff;font-weight:600}
+
+/* API BOX */
+.api-box{background:var(--white);border:1.5px solid var(--gold);border-radius:var(--rl);padding:20px 24px;margin-bottom:20px;display:flex;align-items:flex-start;gap:16px;animation:fadeUp .25s ease}
+.api-box-icon{font-size:24px;flex-shrink:0;margin-top:2px}
+.api-box-body{flex:1}
+.api-box-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:4px}
+.api-box-desc{font-size:12px;color:var(--mid);margin-bottom:10px;line-height:1.5}
+.api-box-desc a{color:var(--gold);text-decoration:none}
+.api-box-desc a:hover{text-decoration:underline}
+.api-row{display:flex;gap:8px}
+.api-row input{flex:1;padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;background:var(--paper);color:var(--ink);letter-spacing:.05em}
+.api-row input:focus{outline:none;border-color:var(--navy);background:var(--white)}
+
+/* STEPS */
+.steps{display:flex;margin-bottom:20px;background:var(--white);border:1px solid var(--border);border-radius:var(--rl);overflow:hidden}
+.step{flex:1;display:flex;align-items:center;gap:8px;padding:11px 14px;border-right:1px solid var(--border);transition:background .2s}
+.step:last-child{border-right:none}
+.snum{width:22px;height:22px;border-radius:50%;background:var(--light);color:var(--mid);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.step.active{background:#f0f4ff}
+.step.active .snum{background:var(--navy);color:#fff}
+.step.done .snum{background:var(--green);color:#fff}
+.slabel{font-size:11px;color:var(--mid);font-weight:500}
+.step.active .slabel{color:var(--navy)}
+.step.done .slabel{color:var(--green)}
+
+/* MAIN */
+.main{max-width:860px;margin:0 auto;padding:28px 24px 80px}
+
+/* CARD */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--rl);padding:24px;margin-bottom:16px;animation:fadeUp .25s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.ctico{font-size:17px}
+
+/* FORM */
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg.full{grid-column:1/-1}
+.fg label{font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.05em}
+.fg input,.fg textarea{padding:9px 12px;border:1px solid var(--border);border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--paper);transition:all .15s;outline:none}
+.fg input:focus,.fg textarea:focus{border-color:var(--navy);background:var(--white)}
+.fg textarea{resize:vertical;min-height:68px}
+
+/* UPLOAD */
+.uzone{border:2px dashed var(--border);border-radius:var(--rl);padding:30px 20px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:var(--paper)}
+.uzone:hover,.uzone.drag{border-color:var(--gold);background:var(--gold-lt)}
+.uzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uzone-icon{font-size:30px;margin-bottom:8px}
+.uzone-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;margin-bottom:4px}
+.uzone-sub{font-size:12px;color:var(--mid)}
+.pgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px;max-height:420px;overflow-y:auto}
+.pi{position:relative;aspect-ratio:1;border-radius:var(--r);overflow:hidden;border:1px solid var(--border)}
+.pi img{width:100%;height:100%;object-fit:cover}
+.pi .rm{position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:50%;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s}
+.pi .rm:hover{background:rgba(200,0,0,.85)}
+.cbadge{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--green);font-weight:600;margin-top:10px}
+
+/* BUTTONS */
+.btn-row{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.btn{padding:10px 20px;border-radius:var(--r);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:7px;transition:all .15s}
+.btn-p{background:var(--navy);color:#fff}
+.btn-p:hover{background:var(--navy-dk)}
+.btn-p:disabled{background:var(--border);color:var(--mid);cursor:not-allowed}
+.btn-o{background:transparent;border:1px solid var(--border);color:var(--ink)}
+.btn-o:hover{border-color:var(--navy);color:var(--navy)}
+.btn-g{background:var(--gold);color:#fff}
+.btn-g:hover{background:#a87c0a}
+
+/* PROGRESS */
+.pbox{background:var(--paper);border:1px solid var(--border);border-radius:var(--rl);padding:20px}
+.phdr{display:flex;justify-content:space-between;margin-bottom:10px}
+.plbl{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--ink)}
+.ppct{font-size:12px;color:var(--mid)}
+.ptrack{height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.pfill{height:100%;background:var(--gold);border-radius:3px;transition:width .5s ease}
+.loglist{margin-top:14px}
+.logi{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--mid)}
+.logi:last-child{border-bottom:none;color:var(--ink);font-weight:500}
+.ld{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.ld.done{background:var(--green)}
+
+/* RESULT */
+.rbanner{background:var(--navy);border-radius:var(--rl);padding:28px 24px;text-align:center;color:#fff;margin-bottom:16px}
+.rb-icon{font-size:42px;margin-bottom:10px}
+.rb-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:5px}
+.rb-sub{font-size:13px;opacity:.6;margin-bottom:20px}
+
+/* SUMMARY */
+.ss{margin-bottom:14px}
+.ss-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);margin-bottom:6px}
+.finding{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--mid)}
+.finding:last-child{border-bottom:none}
+.bdg{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;flex-shrink:0;margin-top:2px;text-transform:uppercase;letter-spacing:.04em}
+.br{background:var(--red-bg);color:var(--red)}
+.ba{background:var(--amber-bg);color:var(--amber)}
+.bg{background:var(--green-bg);color:var(--green)}
+
+/* ERROR */
+.err{background:var(--red-bg);color:var(--red);border-radius:var(--r);padding:10px 14px;font-size:13px;margin-top:12px;display:none}
+
+/* HIDDEN */
+.sec{display:none}
+.sec.on{display:block}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hbrand">
+    <div class="hicon">📊</div>
+    <div>
+      <div class="htitle">Instagram Pitch Generator</div>
+      <div class="hsub">Screenshots → AI analysis → Word document</div>
+    </div>
+  </div>
+  <div class="hright">
+    <div class="api-status">
+      <div class="dot" id="apiDot"></div>
+      <span id="apiStatus">No API key</span>
+    </div>
+    <div class="ltoggle">
+      <button class="lbtn on" onclick="setLang('en')">English</button>
+      <button class="lbtn" onclick="setLang('ar')">العربية</button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- API KEY -->
+  <div class="api-box" id="apiBox">
+    <div class="api-box-icon">🔑</div>
+    <div class="api-box-body">
+      <div class="api-box-title" id="lbl-api-title">Enter your Anthropic API key</div>
+      <div class="api-box-desc" id="lbl-api-desc">
+        Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>.
+        It is sent only to your local server — never stored or shared.
+      </div>
+      <div class="api-row">
+        <input type="password" id="apiKeyInput" placeholder="sk-ant-..." />
+        <button class="btn btn-p" onclick="saveKey()"><span id="lbl-save">Save key</span></button>
+      </div>
+      <div class="err" id="apiErr"></div>
+    </div>
+  </div>
+
+  <!-- STEPS -->
+  <div class="steps">
+    <div class="step active" id="st1"><div class="snum">1</div><div class="slabel" id="sl1">Agency details</div></div>
+    <div class="step" id="st2"><div class="snum">2</div><div class="slabel" id="sl2">Upload screenshots</div></div>
+    <div class="step" id="st3"><div class="snum">3</div><div class="slabel" id="sl3">AI analysis</div></div>
+    <div class="step" id="st4"><div class="snum">4</div><div class="slabel" id="sl4">Download pitch</div></div>
+  </div>
+
+  <!-- SEC 1 -->
+  <div class="sec on" id="sec1">
+    <div class="card">
+      <div class="card-title"><span class="ctico">🏢</span> <span id="lbl-ag-hd">Your agency details</span></div>
+      <div class="fgrid">
+        <div class="fg"><label id="lbl-ag-name">Agency name</label><input type="text" id="agencyName" placeholder="Nova Marketing Agency"/></div>
+        <div class="fg"><label id="lbl-contact">Contact person</label><input type="text" id="contactName" placeholder="Ahmed Al-Rashdi"/></div>
+        <div class="fg"><label id="lbl-phone">Phone / WhatsApp</label><input type="text" id="contactPhone" placeholder="+968 9X XXX XXX"/></div>
+        <div class="fg"><label id="lbl-email">Email</label><input type="text" id="contactEmail" placeholder="hello@agency.om"/></div>
+        <div class="fg"><label id="lbl-client">Client / brand name</label><input type="text" id="clientName"/></div>
+        <div class="fg"><label id="lbl-handle">Instagram handle</label><input type="text" id="clientHandle" placeholder="@username"/></div>
+        <div class="fg full"><label id="lbl-notes">Additional notes (optional)</label><textarea id="extraNotes" placeholder="Specific points to highlight..."></textarea></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-p" onclick="goSec(2)"><span id="lbl-next1">Next: upload screenshots</span> →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 2 -->
+  <div class="sec" id="sec2">
+    <div class="card">
+      <div class="card-title"><span class="ctico">📸</span> <span id="lbl-up-hd">Upload Instagram screenshots</span></div>
+      <p style="font-size:12px;color:var(--mid);margin-bottom:12px" id="lbl-up-hint">Upload 4–20 screenshots: profile page, feed grid, and posts with likes/comments visible.</p>
+      <div class="uzone" id="dropZone">
+        <input type="file" id="fileInput" multiple accept="image/*" onchange="handleFiles(this.files)"/>
+        <div class="uzone-icon">🖼️</div>
+        <div class="uzone-title" id="lbl-drop">Drop screenshots here or click to browse</div>
+        <div class="uzone-sub" id="lbl-drop2">PNG, JPG · up to 20 images</div>
+      </div>
+      <div class="pgrid" id="previewGrid"></div>
+      <div class="cbadge" id="cbadge" style="display:none">✅ <span id="ctxt"></span></div>
+      <div class="err" id="upErr"></div>
+      <div class="btn-row">
+        <button class="btn btn-o" onclick="goSec(1)">← <span id="lbl-back">Back</span></button>
+        <button class="btn btn-p" id="analyzeBtn" onclick="runAnalysis()" disabled><span id="lbl-analyze">✨ Analyze with AI</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 3 -->
+  <div class="sec" id="sec3">
+    <div class="card">
+      <div class="card-title"><span class="ctico">🤖</span> <span id="lbl-prog-hd">AI analysis in progress</span></div>
+      <div class="pbox">
+        <div class="phdr">
+          <div class="plbl" id="progLbl">Starting...</div>
+          <div class="ppct" id="progPct">0%</div>
+        </div>
+        <div class="ptrack"><div class="pfill" id="progFill" style="width:0%"></div></div>
+        <div class="loglist" id="logList"></div>
+      </div>
+      <div class="err" id="anlErr"></div>
+      <div class="btn-row">
+        <button class="btn btn-o" id="backBtn3" onclick="goBack3()">← <span id="lbl-back3">Back to upload</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEC 4 -->
+  <div class="sec" id="sec4">
+    <div class="rbanner">
+      <div class="rb-icon">🎉</div>
+      <div class="rb-title" id="lbl-ready">Your pitch is ready!</div>
+      <div class="rb-sub" id="lbl-ready-sub">AI analysis complete. Download your Word document below.</div>
+      <button class="btn btn-g" onclick="downloadDoc()">⬇️ <span id="lbl-dl">Download pitch (.docx)</span></button>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="ctico">📋</span> <span id="lbl-sum-hd">Analysis summary</span></div>
+      <div id="summaryBody"></div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-o" onclick="goSec(2)">← <span id="lbl-back4">Back to upload</span></button>
+      <button class="btn btn-o" onclick="resetApp()">↺ <span id="lbl-reset">Analyze another account</span></button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+let lang='en', files=[], docxBlob=null, apiKey='';
+
+const T={
+  en:{
+    sl1:'Agency details',sl2:'Upload screenshots',sl3:'AI analysis',sl4:'Download pitch',
+    'lbl-api-title':'Enter your Anthropic API key',
+    'lbl-api-desc-html':'Get your key at <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. Sent only to your local server — never stored.',
+    'lbl-save':'Save key','lbl-ag-hd':'Your agency details','lbl-ag-name':'Agency name',
+    'lbl-contact':'Contact person','lbl-phone':'Phone / WhatsApp','lbl-email':'Email',
+    'lbl-client':'Client / brand name','lbl-handle':'Instagram handle',
+    'lbl-notes':'Additional notes (optional)','lbl-next1':'Next: upload screenshots',
+    'lbl-up-hd':'Upload Instagram screenshots',
+    'lbl-up-hint':'Upload 4–10 screenshots: profile page, feed grid, and posts with likes/comments visible.',
+    'lbl-drop':'Drop screenshots here or click to browse','lbl-drop2':'PNG, JPG · up to 20 images',
+    'lbl-back':'Back','lbl-analyze':'✨ Analyze with AI','lbl-prog-hd':'AI analysis in progress',
+    'lbl-back3':'Back to upload','lbl-back4':'Back to upload',
+    'lbl-ready':'Your pitch is ready!','lbl-ready-sub':'AI analysis complete. Download your Word document below.',
+    'lbl-dl':'Download pitch (.docx)','lbl-sum-hd':'Analysis summary','lbl-reset':'Analyze another account',
+    logs:['Reading screenshots...','Identifying profile metrics...','Analyzing content strategy...','Detecting weaknesses & opportunities...','Building pitch structure...','Generating Word document...'],
+    countTxt:n=>`${n} image${n>1?'s':''} ready`,
+    apiOk:'API key saved',apiNone:'No API key',
+    noKey:'Please enter your Anthropic API key first.',
+    strengths:'Strengths',weaknesses:'Weaknesses',opportunities:'Opportunities',
+    good:'Good',opp:'Opp',
+  },
+  ar:{
+    sl1:'بيانات الوكالة',sl2:'رفع الصور',sl3:'التحليل',sl4:'تحميل العرض',
+    'lbl-api-title':'أدخل مفتاح Anthropic API',
+    'lbl-api-desc-html':'احصل على مفتاحك من <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a>. يُرسل فقط إلى خادمك المحلي.',
+    'lbl-save':'حفظ المفتاح','lbl-ag-hd':'بيانات وكالتك','lbl-ag-name':'اسم الوكالة',
+    'lbl-contact':'اسم المسؤول','lbl-phone':'الهاتف / واتساب','lbl-email':'البريد الإلكتروني',
+    'lbl-client':'اسم العميل','lbl-handle':'حساب إنستقرام',
+    'lbl-notes':'ملاحظات إضافية (اختياري)','lbl-next1':'التالي: رفع الصور',
+    'lbl-up-hd':'ارفع صور شاشة إنستقرام',
+    'lbl-up-hint':'ارفع 4 إلى 20 صورة: الصفحة الشخصية، شبكة المنشورات، ومنشورات تظهر فيها الإعجابات.',
+    'lbl-drop':'اسحب الصور هنا أو انقر للاختيار','lbl-drop2':'PNG أو JPG · حتى 20 صور',
+    'lbl-back':'رجوع','lbl-analyze':'✨ تحليل بالذكاء الاصطناعي','lbl-prog-hd':'التحليل جارٍ...',
+    'lbl-back3':'رجوع إلى الرفع','lbl-back4':'رجوع إلى الرفع',
+    'lbl-ready':'عرضك التقديمي جاهز!','lbl-ready-sub':'اكتمل التحليل. حمّل مستند Word أدناه.',
+    'lbl-dl':'تحميل العرض (.docx)','lbl-sum-hd':'ملخص التحليل','lbl-reset':'تحليل حساب آخر',
+    logs:['قراءة صور الشاشة...','تحديد مقاييس الحساب...','تحليل استراتيجية المحتوى...','رصد نقاط الضعف والفرص...','بناء هيكل المستند...','إنشاء مستند Word...'],
+    countTxt:n=>`${n} صور جاهزة`,
+    apiOk:'تم حفظ المفتاح',apiNone:'لا يوجد مفتاح',
+    noKey:'الرجاء إدخال مفتاح API أولاً.',
+    strengths:'نقاط القوة',weaknesses:'نقاط الضعف',opportunities:'الفرص',
+    good:'قوة',opp:'فرصة',
+  }
+};
+
+function setLang(l){
+  lang=l;
+  document.body.classList.toggle('rtl',l==='ar');
+  document.querySelectorAll('.lbtn').forEach(b=>b.classList.toggle('on',(l==='en'&&b.textContent==='English')||(l==='ar'&&b.textContent==='العربية')));
+  const t=T[l];
+  ['sl1','sl2','sl3','sl4','lbl-api-title','lbl-save','lbl-ag-hd','lbl-ag-name','lbl-contact','lbl-phone','lbl-email','lbl-client','lbl-handle','lbl-notes','lbl-next1','lbl-up-hd','lbl-up-hint','lbl-drop','lbl-drop2','lbl-back','lbl-analyze','lbl-prog-hd','lbl-back3','lbl-back4','lbl-ready','lbl-ready-sub','lbl-dl','lbl-sum-hd','lbl-reset'].forEach(id=>{const el=document.getElementById(id);if(el&&t[id])el.textContent=t[id];});
+  const d=document.getElementById('lbl-api-desc');if(d&&t['lbl-api-desc-html'])d.innerHTML=t['lbl-api-desc-html'];
+  document.getElementById('apiStatus').textContent=apiKey?t.apiOk:t.apiNone;
+  if(files.length)updateCount();
+}
+
+function saveKey(){
+  const v=document.getElementById('apiKeyInput').value.trim();
+  const e=document.getElementById('apiErr');
+  if(!v.startsWith('sk-')){e.style.display='block';e.textContent='Invalid key — should start with sk-ant-...';return;}
+  e.style.display='none';
+  apiKey=v;
+  document.getElementById('apiDot').classList.add('ok');
+  document.getElementById('apiStatus').textContent=T[lang].apiOk;
+  document.getElementById('apiBox').style.borderColor='#2ecc71';
+  document.getElementById('apiKeyInput').value='●'.repeat(20);
+}
+
+function goSec(n){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec'+n).classList.add('on');
+  [1,2,3,4].forEach(i=>{
+    const s=document.getElementById('st'+i);
+    s.classList.remove('active','done');
+    if(i<n)s.classList.add('done');
+    else if(i===n)s.classList.add('active');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function goBack3(){
+  // Reset progress state so user can re-analyze
+  document.getElementById('logList').innerHTML='';
+  document.getElementById('progFill').style.width='0%';
+  document.getElementById('progPct').textContent='0%';
+  document.getElementById('progLbl').textContent='Starting...';
+  document.getElementById('anlErr').style.display='none';
+  goSec(2);
+}
+
+function handleFiles(nf){
+  document.getElementById('upErr').style.display='none';
+  for(const f of nf){if(files.length>=20)break;if(!f.type.startsWith('image/'))continue;files.push(f);}
+  renderPreviews();
+  document.getElementById('analyzeBtn').disabled=files.length<2;
+}
+
+function renderPreviews(){
+  const g=document.getElementById('previewGrid');g.innerHTML='';
+  files.forEach((f,i)=>{
+    const url=URL.createObjectURL(f);
+    const d=document.createElement('div');d.className='pi';
+    d.innerHTML=`<img src="${url}" alt="screenshot"><button class="rm" onclick="removeFile(${i})">×</button>`;
+    g.appendChild(d);
+  });
+  updateCount();
+}
+
+function updateCount(){
+  const p=document.getElementById('cbadge');
+  if(files.length){p.style.display='inline-flex';document.getElementById('ctxt').textContent=T[lang].countTxt(files.length);}
+  else p.style.display='none';
+}
+
+function removeFile(i){files.splice(i,1);renderPreviews();document.getElementById('analyzeBtn').disabled=files.length<2;}
+
+const dz=document.getElementById('dropZone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFiles(e.dataTransfer.files);});
+
+async function runAnalysis(){
+  if(!apiKey){const e=document.getElementById('upErr');e.style.display='block';e.textContent=T[lang].noKey;return;}
+  goSec(3);
+  const logList=document.getElementById('logList');
+  const fill=document.getElementById('progFill');
+  const pct=document.getElementById('progPct');
+  const lbl=document.getElementById('progLbl');
+  const errBox=document.getElementById('anlErr');
+  const steps=T[lang].logs;
+
+  const addLog=(txt,done=false)=>{
+    const d=document.createElement('div');d.className='logi';
+    d.innerHTML=`<div class="ld${done?' done':''}"></div>${txt}`;
+    logList.appendChild(d);lbl.textContent=txt;
+  };
+  const setP=p=>{fill.style.width=p+'%';pct.textContent=p+'%';};
+
+  try{
+    addLog(steps[0]);setP(10);
+    const imgs=await Promise.all(files.map(toB64));
+    addLog(steps[1]);setP(25);
+
+    const payload={
+      images:imgs,
+      clientName:gv('clientName'),clientHandle:gv('clientHandle'),
+      agencyName:gv('agencyName'),notes:gv('extraNotes'),lang
+    };
+
+    addLog(steps[2]);setP(42);
+
+    // Use Electron IPC (desktop app) or fallback to fetch (browser/server mode)
+    let data;
+    if(window.electronAPI){
+      const result=await window.electronAPI.analyze({...payload,apiKey});
+      addLog(steps[3]);setP(65);
+      if(!result.success)throw new Error(result.error);
+      data=result.data;
+    }else{
+      const res=await fetch('/api/analyze',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':apiKey},
+        body:JSON.stringify(payload)
+      });
+      addLog(steps[3]);setP(65);
+      if(!res.ok){const ed=await res.json().catch(()=>({}));throw new Error(ed.error||`Server error ${res.status}`);}
+      data=await res.json();
+      if(data.error)throw new Error(data.error);
+    }
+
+    addLog(steps[4]);setP(80);
+    await buildDocx(data,{
+      ag:gv('agencyName')||'Your Agency',
+      cn:gv('contactName'),cp:gv('contactPhone'),ce:gv('contactEmail'),
+      cl:gv('clientName')||'the client',ch:gv('clientHandle'),
+      isAr:lang==='ar'
+    });
+
+    addLog(steps[5],true);setP(100);
+    setTimeout(()=>{goSec(4);renderSummary(data);},600);
+
+  }catch(e){
+    errBox.style.display='block';
+    errBox.textContent='Error: '+e.message;
+  }
+}
+
+function gv(id){return(document.getElementById(id)?.value||'').trim();}
+
+async function toB64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>{const[hdr,data]=e.target.result.split(',');res({type:hdr.match(/:(.*?);/)[1],data});};
+    r.onerror=rej;r.readAsDataURL(file);
+  });
+}
+
+async function buildDocx(a,{ag,cn,cp,ce,cl,ch,isAr}){
+  const date=new Date().toLocaleDateString(isAr?'ar-OM':'en-GB',{year:'numeric',month:'long'});
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const par=(txt,sz,bold,color,align,rtl,sp=200)=>
+    `<w:p><w:pPr><w:jc w:val="${align}"/>${rtl?'<w:bidi/>':''}<w:spacing w:before="${sp}" w:after="80"/></w:pPr>`+
+    `<w:r><w:rPr>${bold?'<w:b/>':''}<w:color w:val="${color}"/><w:sz w:val="${sz}"/><w:szCs w:val="${sz}"/>` +
+    `<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/>${rtl?'<w:rtl/>':''}</w:rPr>` +
+    `<w:t xml:space="preserve">${esc(txt)}</w:t></w:r></w:p>`;
+  const al=isAr?'right':'left',rt=isAr;
+  const h1=t=>par(t,28,true,'1A3C6B',al,rt,360);
+  const bd=t=>par(t,20,false,'333333',al,rt,100);
+  const bl=t=>par(t,20,false,'444444',al,rt,80);
+  const iss=t=>par(t,20,true,'C0392B',al,rt,80);
+  const isd=t=>par('    '+t,18,false,'888888',al,rt,40);
+  const div=()=>`<w:p><w:pPr><w:spacing w:before="240" w:after="240"/><w:pBdr><w:bottom w:val="single" w:sz="4" w:space="1" w:color="E8A020"/></w:pBdr></w:pPr></w:p>`;
+  const sp=()=>`<w:p><w:pPr><w:spacing w:before="80" w:after="80"/></w:pPr></w:p>`;
+
+  let xml='';
+  if(isAr){
+    xml+=par('عرض تسويقي لتطوير حساب إنستقرام',36,true,'1A3C6B','center',true,400);
+    xml+=par(`مُعدّ لـ: ${cl}${ch?' ('+ch+')':''}`,22,false,'555555','center',true,100);
+    xml+=par(`${ag} | ${date}`,18,false,'888888','center',true,80);
+    xml+=div();xml+=sp();
+    xml+=h1('01  نظرة عامة على الحساب');
+    xml+=bd(`المتابعون: ${a.metrics?.followers||'—'} | المنشورات: ${a.metrics?.posts||'—'} | المتابَعون: ${a.metrics?.following||'—'} | متوسط الإعجابات: ${a.metrics?.avg_likes||'—'}`);
+    xml+=bd(a.summary||'');xml+=sp();
+    xml+=h1('02  نقاط القوة');(a.strengths||[]).forEach(s=>xml+=bl('• '+s));xml+=sp();
+    xml+=h1('03  أبرز نقاط الضعف');(a.weaknesses||[]).forEach(w=>{xml+=iss('▸ '+w.issue);xml+=isd(`الخطورة: ${w.severity} | التأثير: ${w.impact}`);});xml+=sp();
+    xml+=h1('04  مشكلات المحتوى');(a.content_issues||[]).forEach(c=>xml+=bl('• '+c));xml+=sp();
+    xml+=h1('05  الفرص المتاحة');(a.opportunities||[]).forEach(o=>xml+=bl('• '+o));xml+=sp();xml+=div();
+    xml+=h1('06  الحل المقترح');
+    [['استراتيجية المحتوى','تقويم شهري بنشر 4-5 مرات أسبوعياً'],['التصوير والفيديو','جلسات احترافية + إنتاج ريلز'],['كتابة المحتوى','كابشنات ثنائية اللغة مع CTA واضح'],['استراتيجية الهاشتاق','وسوم محلية ووطنية ورائجة'],['إدارة المؤثرين','شراكات رسمية مع مؤثري الطعام'],['حملات UGC','تاغ العملاء وإعادة النشر والهدايا'],['الإعلانات المدفوعة','إعلانات ميتا مستهدفة'],['التقارير الشهرية','تقارير التفاعل والوصول والنمو']].forEach(([s,d])=>xml+=bl(`◆ ${s}: ${d}`));
+    xml+=sp();xml+=div();
+    xml+=h1('07  بيانات التواصل');xml+=par(ag,22,true,'1A3C6B',al,true,120);
+    if(cn)xml+=bd(cn);if(cp)xml+=bd('📞 '+cp);if(ce)xml+=bd('✉ '+ce);
+  }else{
+    xml+=par('Instagram Growth Proposal',36,true,'1A3C6B','center',false,400);
+    xml+=par(`Prepared for: ${cl}${ch?' ('+ch+')':''}`,22,false,'555555','center',false,100);
+    xml+=par(`${ag} | ${date}`,18,false,'888888','center',false,80);
+    xml+=div();xml+=sp();
+    xml+=h1('01  Account overview');
+    xml+=bd(`Followers: ${a.metrics?.followers||'—'}  |  Posts: ${a.metrics?.posts||'—'}  |  Following: ${a.metrics?.following||'—'}  |  Avg. likes: ${a.metrics?.avg_likes||'—'}`);
+    xml+=bd(a.summary||'');xml+=sp();
+    xml+=h1('02  Strengths');(a.strengths||[]).forEach(s=>xml+=bl('• '+s));xml+=sp();
+    xml+=h1('03  Key weaknesses');(a.weaknesses||[]).forEach(w=>{xml+=iss('▸ '+w.issue);xml+=isd(`Severity: ${w.severity}  |  Impact: ${w.impact}`);});xml+=sp();
+    xml+=h1('04  Content issues');(a.content_issues||[]).forEach(c=>xml+=bl('• '+c));xml+=sp();
+    xml+=h1('05  Opportunities');(a.opportunities||[]).forEach(o=>xml+=bl('• '+o));xml+=sp();xml+=div();
+    xml+=h1('06  Proposed solution');
+    [['Content strategy','Monthly calendar, 4–5 posts/week'],['Photography & video','Professional food shoots + Reels'],['Copywriting','Bilingual captions with clear CTAs'],['Hashtag strategy','Local, national & trending tags'],['Influencer management','Formalized local partnerships'],['UGC campaigns','Tagging campaigns & giveaways'],['Paid ads','Targeted Meta ads'],['Monthly reporting','Engagement, reach & growth reports']].forEach(([s,d])=>xml+=bl(`◆ ${s}: ${d}`));
+    xml+=sp();xml+=div();
+    xml+=h1('07  Contact information');xml+=par(ag,22,true,'1A3C6B','left',false,120);
+    if(cn)xml+=bd(cn);if(cp)xml+=bd('📞 '+cp);if(ce)xml+=bd('✉ '+ce);
+  }
+
+  const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>${xml}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1440" w:right="1440" w:bottom="1440" w:left="1440"/></w:sectPr></w:body></w:document>`;
+  docxBlob=makeZip({'[Content_Types].xml':`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>`,'_rels/.rels':`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`,'word/document.xml':docXml,'word/_rels/document.xml.rels':`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>`});
+}
+
+function makeZip(fm){
+  const enc=new TextEncoder(),parts=[],dirs=[];let off=0;
+  for(const[name,content]of Object.entries(fm)){
+    const nb=enc.encode(name),cb=enc.encode(content),crc=crc32b(cb),lh=lhdr(nb,cb.length,crc);
+    parts.push(lh,nb,cb);dirs.push({nb,size:cb.length,crc,off});off+=lh.length+nb.length+cb.length;
+  }
+  const cde=dirs.map(d=>cEntry(d.nb,d.size,d.crc,d.off));
+  const cdSz=cde.reduce((a,b)=>a+b.length,0),eocd=eCD(dirs.length,cdSz,off);
+  const all=[...parts,...cde,eocd],total=all.reduce((a,b)=>a+b.length,0),out=new Uint8Array(total);
+  let p=0;for(const a of all){out.set(a,p);p+=a.length;}
+  return new Blob([out],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+}
+function lhdr(nb,sz,crc){const b=new DataView(new ArrayBuffer(30));b.setUint32(0,0x04034b50,true);b.setUint16(4,20,true);b.setUint32(14,crc>>>0,true);b.setUint32(18,sz,true);b.setUint32(22,sz,true);b.setUint16(26,nb.length,true);return new Uint8Array(b.buffer);}
+function cEntry(nb,sz,crc,off){const b=new DataView(new ArrayBuffer(46));b.setUint32(0,0x02014b50,true);b.setUint16(4,20,true);b.setUint16(6,20,true);b.setUint32(16,crc>>>0,true);b.setUint32(20,sz,true);b.setUint32(24,sz,true);b.setUint16(28,nb.length,true);b.setUint32(42,off,true);const h=new Uint8Array(b.buffer),r=new Uint8Array(46+nb.length);r.set(h);r.set(nb,46);return r;}
+function eCD(cnt,sz,off){const b=new DataView(new ArrayBuffer(22));b.setUint32(0,0x06054b50,true);b.setUint16(8,cnt,true);b.setUint16(10,cnt,true);b.setUint32(12,sz,true);b.setUint32(16,off,true);return new Uint8Array(b.buffer);}
+function crc32b(data){if(!crc32b.t){crc32b.t=new Uint32Array(256);for(let i=0;i<256;i++){let c=i;for(let j=0;j<8;j++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);crc32b.t[i]=c;}}let c=0xFFFFFFFF;for(const b of data)c=crc32b.t[(c^b)&0xFF]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
+
+function downloadDoc(){
+  if(!docxBlob)return;
+  const cl=gv('clientName')||'client';
+  const url=URL.createObjectURL(docxBlob);
+  const a=document.createElement('a');a.href=url;a.download=`${cl.replace(/\s+/g,'_')}_Pitch_${lang.toUpperCase()}.docx`;
+  a.click();URL.revokeObjectURL(url);
+}
+
+function renderSummary(a){
+  const t=T[lang];let html='';
+  if(a.strengths?.length){html+=`<div class="ss"><div class="ss-title">${t.strengths}</div>`;a.strengths.forEach(s=>html+=`<div class="finding"><span class="bdg bg">${t.good}</span>${s}</div>`);html+=`</div>`;}
+  if(a.weaknesses?.length){html+=`<div class="ss"><div class="ss-title">${t.weaknesses}</div>`;a.weaknesses.forEach(w=>{const isCrit=w.severity==='Critical'||w.severity==='حرج';html+=`<div class="finding"><span class="bdg ${isCrit?'br':'ba'}">${w.severity}</span>${w.issue}</div>`;});html+=`</div>`;}
+  if(a.opportunities?.length){html+=`<div class="ss"><div class="ss-title">${t.opportunities}</div>`;a.opportunities.forEach(o=>html+=`<div class="finding"><span class="bdg bg">${t.opp}</span>${o}</div>`);html+=`</div>`;}
+  document.getElementById('summaryBody').innerHTML=html;
+}
+
+function resetApp(){
+  files=[];docxBlob=null;
+  document.getElementById('previewGrid').innerHTML='';
+  document.getElementById('cbadge').style.display='none';
+  document.getElementById('logList').innerHTML='';
+  document.getElementById('progFill').style.width='0%';
+  document.getElementById('progPct').textContent='0%';
+  document.getElementById('analyzeBtn').disabled=true;
+  ['upErr','anlErr','apiErr'].forEach(id=>document.getElementById(id).style.display='none');
+  goSec(1);
+}
+</script>
+</body>
+</html>
